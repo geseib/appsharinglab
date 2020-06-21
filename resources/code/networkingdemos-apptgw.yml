@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Networking Demos - appTGW"
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "VPC Parameters"
+        Parameters:
+          - IncludeVPC4
+
+Parameters:
+  RegionalASN:
+    Type: String
+    Description: BGP ASN, suggested to use 650xx, where xx is the Regional CIDR used. (10.8.0.0/13 would be ASN 65108)
+    Default: "65100"
+    AllowedValues:
+      - "65100"
+      - "65108"
+      - "65116"
+      - "65124"
+  ProjectName:
+    Type: String
+    Description: Project Name used by all stacks
+    Default: NET
+
+Resources:
+  # Trasnit Gateway
+  TransitGateway:
+    Type: "AWS::EC2::TransitGateway"
+    Properties:
+      AmazonSideAsn: !Ref "RegionalASN"
+      AutoAcceptSharedAttachments: "enable"
+      DefaultRouteTableAssociation: "disable"
+      DefaultRouteTablePropagation: "disable"
+      DnsSupport: "enable"
+      VpnEcmpSupport: "enable"
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${ProjectName}-TGW"
+
+  DevRouteTable:
+    Type: "AWS::EC2::TransitGatewayRouteTable"
+    Properties:
+      TransitGatewayId: !Ref TransitGateway
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${ProjectName}-Dev"
+
+  VPC1Attachment:
+    Type: "AWS::EC2::TransitGatewayAttachment"
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Sub "VPC1-${ProjectName}-VPC"
+      TransitGatewayId: !Ref TransitGateway
+      SubnetIds:
+        - Fn::ImportValue: !Sub "VPC1-${ProjectName}-PrivateSubnetA"
+        - Fn::ImportValue: !Sub "VPC1-${ProjectName}-PrivateSubnetB"
+      Tags:
+        - Key: Name
+          Value: !Join
+            - ""
+            - - Ref: "ProjectName"
+              - "-"
+              - VPC
+              - !Select
+                - 1
+                - !Split
+                  - "."
+                  - !Select
+                    - 1
+                    - !Cidr
+                      - Fn::ImportValue: !Sub "${ProjectName}-RegionalCIDR"
+                      - 8
+                      - 16
+              - "-"
+              - "Attachment"
+
+  VPC2Attachment:
+    Type: "AWS::EC2::TransitGatewayAttachment"
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Sub "VPC2-${ProjectName}-VPC"
+      TransitGatewayId: !Ref TransitGateway
+      SubnetIds:
+        - Fn::ImportValue: !Sub "VPC2-${ProjectName}-PrivateSubnetA"
+        - Fn::ImportValue: !Sub "VPC2-${ProjectName}-PrivateSubnetB"
+      Tags:
+        - Key: Name
+          Value: !Join
+            - ""
+            - - Ref: "ProjectName"
+              - "-"
+              - VPC
+              - !Select
+                - 1
+                - !Split
+                  - "."
+                  - !Select
+                    - 2
+                    - !Cidr
+                      - Fn::ImportValue: !Sub "${ProjectName}-RegionalCIDR"
+                      - 8
+                      - 16
+              - "-"
+              - "Attachment"
+
+  # VPC to TGW Associations
+  VPC1Association:
+    Type: "AWS::EC2::TransitGatewayRouteTableAssociation"
+    Properties:
+      TransitGatewayRouteTableId: !Ref DevRouteTable
+      TransitGatewayAttachmentId: !Ref VPC1Attachment
+
+  VPC2Association:
+    Type: "AWS::EC2::TransitGatewayRouteTableAssociation"
+    Properties:
+      TransitGatewayRouteTableId: !Ref DevRouteTable
+      TransitGatewayAttachmentId: !Ref VPC2Attachment
+
+  # VPC to TGW Dev Propagation
+  VPC1PropagationDev:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayRouteTableId: !Ref DevRouteTable
+      TransitGatewayAttachmentId: !Ref VPC1Attachment
+
+  VPC2PropagationDev:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayRouteTableId: !Ref DevRouteTable
+      TransitGatewayAttachmentId: !Ref VPC2Attachment
+
+  # Add Route to TGW in VPC route tables
+  VPC1TGWRoute:
+    DependsOn: VPC1Association
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId:
+        Fn::ImportValue: !Sub "VPC1-${ProjectName}-PrivateRouteTable"
+      DestinationCidrBlock: "0.0.0.0/0"
+      TransitGatewayId: !Ref TransitGateway
+
+  VPC2TGWRoute:
+    DependsOn: VPC2Association
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId:
+        Fn::ImportValue: !Sub "VPC2-${ProjectName}-PrivateRouteTable"
+      DestinationCidrBlock: "0.0.0.0/0"
+      TransitGatewayId: !Ref TransitGateway
+
+Outputs:
+  TGW:
+    Description: "TGW"
+    Value: !Ref TransitGateway
+    Export:
+      Name: !Sub "${ProjectName}-TGW"
+
+  TGWDevRouteTable:
+    Description: "TGW Dev Route Table"
+    Value: !Ref DevRouteTable
+    Export:
+      Name: !Sub "${ProjectName}-TGW-Dev"

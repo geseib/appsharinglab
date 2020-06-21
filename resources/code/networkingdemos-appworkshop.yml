@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Networking Demos - app workshop"
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "VPC Parameters"
+        Parameters:
+          - AvailabilityZoneA
+          - AvailabilityZoneB
+          - VPCCIDR
+      - Label:
+        default: "Deployment Options"
+        Parameters:
+          - S3TemplatePath
+
+Parameters:
+  AvailabilityZoneA:
+    Description: Availability Zone 1
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-west-1a
+  AvailabilityZoneB:
+    Description: Availability Zone 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-west-1c
+  S3TemplatePath:
+    Description: S3 HTTP path with prefix to templates (Should end with a /)
+    Type: String
+    Default: "https://appshare-resourcesbucket-o54kvu0pf4du.s3.amazonaws.com/"
+
+Resources:
+  VPCsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Join
+        - ""
+        - - !Ref S3TemplatePath
+          - networkingdemos-appvpcs.yml
+      TimeoutInMinutes: "10"
+      Parameters:
+        RegionalCIDR: 10.64.0.0/16
+        AvailabilityZoneA: !Ref AvailabilityZoneA
+        AvailabilityZoneB: !Ref AvailabilityZoneB
+        ProjectName: !Ref ProjectName
+        DeployServers: !Ref DeployServers
+        DeploySSMEndpoints: !Ref DeploySSMEndpoints
+
+  TGWStack:
+      DependsOn: VPCsStack
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Join
+        - ""
+        - - !Ref S3TemplatePath
+          - networkingdemos-apptgw.yml
+      TimeoutInMinutes: "10"
+      Parameters:
+        ProjectName: !Ref ProjectName
+        RegionalASN: !Ref RegionalASN
