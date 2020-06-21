@@ -94,7 +94,7 @@ Resources:
   VPC1:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Select [1, !Cidr [Ref: RegionalCIDR, 8, 16]]
+      CidrBlock: !Select [0, !Cidr [Ref: RegionalCIDR, 8, 16]]
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
       InstanceTenancy: default
@@ -110,7 +110,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 1
+                    - 0
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -145,7 +145,7 @@ Resources:
                       - 8
                       - 16
               - "-"
-              - "Priv-A Subnet"
+              - "PrivateA Subnet"
 
   VPC1PrivateSubnetB:
     Type: AWS::EC2::Subnet
@@ -174,7 +174,7 @@ Resources:
                       - 8
                       - 16
               - "-"
-              - "Priv-B Subnet"
+              - "PrivateB Subnet"
 
   VPC1PrivateSubnetRouteTable:
     Type: AWS::EC2::RouteTable
@@ -409,7 +409,7 @@ Resources:
   VPC2:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Select [2, !Cidr [Ref: RegionalCIDR, 4, 16]]
+      CidrBlock: !Select [1, !Cidr [Ref: RegionalCIDR, 4, 16]]
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
       InstanceTenancy: default
@@ -425,7 +425,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 2
+                    - 1
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -775,3 +775,9 @@ Outputs:
     Value: !GetAtt VPC2ServerEc2.PrivateIp
     Export:
       Name: !Sub "VPC2-${ProjectName}-ServerIP"
+
+  RegionalCIDR:
+    Description: "Regional CIDR"
+    Value: !Ref RegionalCIDR
+    Export:
+      Name: !Sub "${ProjectName}-RegionalCIDR"
