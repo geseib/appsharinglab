@@ -90,8 +90,8 @@ Mappings:
       AMI: "ami-082b5a644766e0e6f"
 
 Resources:
-  #VPC1
-  VPC1:
+  #VPC64
+  VPC64:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Select [0, !Cidr [Ref: RegionalCIDR, 8, 16]]
@@ -102,9 +102,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -118,12 +116,12 @@ Resources:
         - Key: project
           Value: Networking Demos by GSeib
 
-  VPC1PrivateSubnetA:
+  VPC64PrivateSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC1
-      CidrBlock: !Select [2, !Cidr [!GetAtt VPC1.CidrBlock, 6, 8]]
+        Ref: VPC64
+      CidrBlock: !Select [2, !Cidr [!GetAtt VPC64.CidrBlock, 6, 8]]
       AvailabilityZone:
         Ref: AvailabilityZoneA
       MapPublicIpOnLaunch: false
@@ -131,9 +129,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -147,12 +143,12 @@ Resources:
               - "-"
               - "PrivateA Subnet"
 
-  VPC1PrivateSubnetB:
+  VPC64PrivateSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC1
-      CidrBlock: !Select [3, !Cidr [!GetAtt VPC1.CidrBlock, 6, 8]]
+        Ref: VPC64
+      CidrBlock: !Select [3, !Cidr [!GetAtt VPC64.CidrBlock, 6, 8]]
       AvailabilityZone:
         Ref: AvailabilityZoneB
       MapPublicIpOnLaunch: false
@@ -160,9 +156,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -176,18 +170,16 @@ Resources:
               - "-"
               - "PrivateB Subnet"
 
-  VPC1PrivateSubnetRouteTable:
+  VPC64PrivateSubnetRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId:
-        Ref: VPC1
+        Ref: VPC64
       Tags:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -201,30 +193,28 @@ Resources:
               - "-"
               - "Private Route Table"
 
-  VPC1PrivateASubnetRouteTableAssociation:
+  VPC64PrivateASubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPC1PrivateSubnetRouteTable
+        Ref: VPC64PrivateSubnetRouteTable
       SubnetId:
-        Ref: VPC1PrivateSubnetA
+        Ref: VPC64PrivateSubnetA
 
-  VPC1PrivateBSubnetRouteTableAssociation:
+  VPC64PrivateBSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPC1PrivateSubnetRouteTable
+        Ref: VPC64PrivateSubnetRouteTable
       SubnetId:
-        Ref: VPC1PrivateSubnetB
+        Ref: VPC64PrivateSubnetB
 
-  VPC1ServerRole:
+  VPC64ServerRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Join
         - ""
-        - - Ref: "ProjectName"
-          - "-"
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -252,23 +242,21 @@ Resources:
             Action:
               - sts:AssumeRole
 
-  VPC1InstanceProfile:
+  VPC64InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
       Roles:
-        - !Ref VPC1ServerRole
+        - !Ref VPC64ServerRole
 
   #ICMP is allowed from anywhere within 10.0.0.0 address space (not recommended for real environments)
-  VPC1Ec2SecGroup:
+  VPC64Ec2SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
       GroupName: !Join
         - ""
-        - - Ref: "ProjectName"
-          - "-"
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -282,7 +270,7 @@ Resources:
           - "-"
           - "EC2-SG"
       VpcId:
-        Ref: VPC1
+        Ref: VPC64
       SecurityGroupIngress:
         - IpProtocol: icmp
           CidrIp: 10.0.0.0/8
@@ -297,41 +285,39 @@ Resources:
           ToPort: "80"
           CidrIp: 10.0.0.0/8
 
-  VPC1ServerEc2:
+  VPC64ServerEc2:
     Type: AWS::EC2::Instance
     Condition: CreateServer
-    DependsOn: VPC1PrivateSubnetA
+    DependsOn: VPC64PrivateSubnetA
     Properties:
       SubnetId:
-        Ref: VPC1PrivateSubnetA
+        Ref: VPC64PrivateSubnetA
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
       PrivateIpAddress: !Join
         - "."
         - - !Select [
               0,
-              !Split [".", !Select [2, !Cidr [!GetAtt VPC1.CidrBlock, 6, 8]]],
+              !Split [".", !Select [2, !Cidr [!GetAtt VPC64.CidrBlock, 6, 8]]],
             ]
           - !Select [
               1,
-              !Split [".", !Select [2, !Cidr [!GetAtt VPC1.CidrBlock, 6, 8]]],
+              !Split [".", !Select [2, !Cidr [!GetAtt VPC64.CidrBlock, 6, 8]]],
             ]
           - !Select [
               2,
-              !Split [".", !Select [2, !Cidr [!GetAtt VPC1.CidrBlock, 6, 8]]],
+              !Split [".", !Select [2, !Cidr [!GetAtt VPC64.CidrBlock, 6, 8]]],
             ]
           - "10"
       InstanceType: t2.micro
       SecurityGroupIds:
-        - Ref: VPC1Ec2SecGroup
+        - Ref: VPC64Ec2SecGroup
       IamInstanceProfile:
-        Ref: VPC1InstanceProfile
+        Ref: VPC64InstanceProfile
       Tags:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -345,16 +331,14 @@ Resources:
               - "-"
               - "WebServer"
 
-  VPC1EndpointSecGroup:
+  VPC64EndpointSecGroup:
     Type: AWS::EC2::SecurityGroup
     Condition: CreateSSMEndpoints
     Properties:
       GroupDescription: Open-up ports for local VPC
       GroupName: !Join
         - ""
-        - - Ref: "ProjectName"
-          - "-"
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -368,49 +352,49 @@ Resources:
           - "-"
           - "Endpoint-SG"
       VpcId:
-        Ref: VPC1
+        Ref: VPC64
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: "443"
           ToPort: "443"
           CidrIp: !Select [0, !Cidr [Ref: RegionalCIDR, 4, 16]]
 
-  VPC1SSMEndpoint:
+  VPC64SSMEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Condition: CreateSSMEndpoints
     Properties:
       VpcId:
-        Ref: VPC1
+        Ref: VPC64
       ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
       VpcEndpointType: Interface
       PrivateDnsEnabled: True
       SubnetIds:
-        - Ref: VPC1PrivateSubnetA
-        - Ref: VPC1PrivateSubnetB
+        - Ref: VPC64PrivateSubnetA
+        - Ref: VPC64PrivateSubnetB
       SecurityGroupIds:
-        - Ref: VPC1EndpointSecGroup
+        - Ref: VPC64EndpointSecGroup
 
-  VPC1SSMMEndpoint:
+  VPC64SSMMEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Condition: CreateSSMEndpoints
     Properties:
       VpcId:
-        Ref: VPC1
+        Ref: VPC64
       ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
       VpcEndpointType: Interface
       PrivateDnsEnabled: True
       SubnetIds:
-        - Ref: VPC1PrivateSubnetA
-        - Ref: VPC1PrivateSubnetB
+        - Ref: VPC64PrivateSubnetA
+        - Ref: VPC64PrivateSubnetB
       SecurityGroupIds:
-        - Ref: VPC1EndpointSecGroup
-  #VPC2 Public Subnets
-  VPC1PublicSubnetA:
+        - Ref: VPC64EndpointSecGroup
+  #VPC65 Public Subnets
+  VPC64PublicSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC1
-      CidrBlock: !Select [0, !Cidr [!GetAtt VPC1.CidrBlock, 6, 8]]
+        Ref: VPC64
+      CidrBlock: !Select [0, !Cidr [!GetAtt VPC64.CidrBlock, 6, 8]]
       AvailabilityZone:
         Ref: AvailabilityZoneA
       MapPublicIpOnLaunch: true
@@ -432,12 +416,12 @@ Resources:
               - "-"
               - "PublicA Subnet"
 
-  VPC1PublicSubnetB:
+  VPC64PublicSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC1
-      CidrBlock: !Select [1, !Cidr [!GetAtt VPC1.CidrBlock, 6, 8]]
+        Ref: VPC64
+      CidrBlock: !Select [1, !Cidr [!GetAtt VPC64.CidrBlock, 6, 8]]
       AvailabilityZone:
         Ref: AvailabilityZoneB
       MapPublicIpOnLaunch: true
@@ -459,11 +443,11 @@ Resources:
               - "-"
               - "PublicB Subnet"
 
-  VPC1PublicSubnetRouteTable:
+  VPC64PublicSubnetRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId:
-        Ref: VPC1
+        Ref: VPC64
       Tags:
         - Key: Name
           Value: !Join
@@ -482,24 +466,24 @@ Resources:
               - "-"
               - "Public Route Table"
 
-  VPC1PublicASubnetRouteTableAssociation:
+  VPC64PublicASubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPC1PublicSubnetRouteTable
+        Ref: VPC64PublicSubnetRouteTable
       SubnetId:
-        Ref: VPC1PublicSubnetA
+        Ref: VPC64PublicSubnetA
 
-  VPC1PublicBSubnetRouteTableAssociation:
+  VPC64PublicBSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPC1PublicSubnetRouteTable
+        Ref: VPC64PublicSubnetRouteTable
       SubnetId:
-        Ref: VPC1PublicSubnetB
+        Ref: VPC64PublicSubnetB
 
-  # VPC1 Gateways
-  VPC1InternetGateway:
+  # VPC64 Gateways
+  VPC64InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
@@ -520,39 +504,39 @@ Resources:
               - "-"
               - "IGW"
 
-  VPC1AttachGateway:
+  VPC64AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId:
-        Ref: VPC1
+        Ref: VPC64
       InternetGatewayId:
-        Ref: VPC1InternetGateway
+        Ref: VPC64InternetGateway
 
-  VPC1DirectInternetRoute:
+  VPC64DirectInternetRoute:
     Type: AWS::EC2::Route
-    DependsOn: VPC1InternetGateway
+    DependsOn: VPC64InternetGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
-        Ref: VPC1InternetGateway
+        Ref: VPC64InternetGateway
       RouteTableId:
-        Ref: VPC1PublicSubnetRouteTable
+        Ref: VPC64PublicSubnetRouteTable
 
-  VPC1NATEIP:
+  VPC64NATEIP:
     Type: "AWS::EC2::EIP"
     Properties:
       Domain: vpc
 
-  VPC1NATGateway:
-    DependsOn: VPC1AttachGateway
+  VPC64NATGateway:
+    DependsOn: VPC64AttachGateway
     Type: "AWS::EC2::NatGateway"
     Properties:
       AllocationId:
         Fn::GetAtt:
-          - VPC1NATEIP
+          - VPC64NATEIP
           - AllocationId
       SubnetId:
-        Ref: VPC1PublicSubnetA
+        Ref: VPC64PublicSubnetA
       Tags:
         - Key: Name
           Value: !Join
@@ -571,18 +555,18 @@ Resources:
               - "-"
               - "NAT Gateway"
 
-  VPC1NATInternetRoutePrivate:
+  VPC64NATInternetRoutePrivate:
     Type: AWS::EC2::Route
-    DependsOn: VPC1InternetGateway
+    DependsOn: VPC64InternetGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId:
-        Ref: VPC1NATGateway
+        Ref: VPC64NATGateway
       RouteTableId:
-        Ref: VPC1PrivateSubnetRouteTable
+        Ref: VPC64PrivateSubnetRouteTable
 
   #VPC 2
-  VPC2:
+  VPC65:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Select [1, !Cidr [Ref: RegionalCIDR, 4, 16]]
@@ -593,9 +577,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -609,12 +591,12 @@ Resources:
         - Key: project
           Value: Networking Demos by GSeib
 
-  VPC2PrivateSubnetA:
+  VPC65PrivateSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC2
-      CidrBlock: !Select [2, !Cidr [!GetAtt VPC2.CidrBlock, 6, 8]]
+        Ref: VPC65
+      CidrBlock: !Select [2, !Cidr [!GetAtt VPC65.CidrBlock, 6, 8]]
       AvailabilityZone:
         Ref: AvailabilityZoneA
       MapPublicIpOnLaunch: false
@@ -622,9 +604,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -638,12 +618,12 @@ Resources:
               - "-"
               - "PrivateA Subnet"
 
-  VPC2PrivateSubnetB:
+  VPC65PrivateSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC2
-      CidrBlock: !Select [3, !Cidr [!GetAtt VPC2.CidrBlock, 6, 8]]
+        Ref: VPC65
+      CidrBlock: !Select [3, !Cidr [!GetAtt VPC65.CidrBlock, 6, 8]]
       AvailabilityZone:
         Ref: AvailabilityZoneB
       MapPublicIpOnLaunch: false
@@ -651,9 +631,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -667,18 +645,16 @@ Resources:
               - "-"
               - "PrivateB Subnet"
 
-  VPC2PrivateSubnetRouteTable:
+  VPC65PrivateSubnetRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId:
-        Ref: VPC2
+        Ref: VPC65
       Tags:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -692,30 +668,28 @@ Resources:
               - "-"
               - "Private Route Table"
 
-  VPC2PrivateASubnetRouteTableAssociation:
+  VPC65PrivateASubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPC2PrivateSubnetRouteTable
+        Ref: VPC65PrivateSubnetRouteTable
       SubnetId:
-        Ref: VPC2PrivateSubnetA
+        Ref: VPC65PrivateSubnetA
 
-  VPC2PrivateBSubnetRouteTableAssociation:
+  VPC65PrivateBSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPC2PrivateSubnetRouteTable
+        Ref: VPC65PrivateSubnetRouteTable
       SubnetId:
-        Ref: VPC2PrivateSubnetB
+        Ref: VPC65PrivateSubnetB
 
-  VPC2ServerRole:
+  VPC65ServerRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Join
         - ""
-        - - Ref: "ProjectName"
-          - "-"
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -743,23 +717,21 @@ Resources:
             Action:
               - sts:AssumeRole
 
-  VPC2InstanceProfile:
+  VPC65InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
       Roles:
-        - !Ref VPC2ServerRole
+        - !Ref VPC65ServerRole
 
   #ICMP is allowed from anywhere within 10.0.0.0 address space (not recommended for real environments)
-  VPC2Ec2SecGroup:
+  VPC65Ec2SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
       GroupName: !Join
         - ""
-        - - Ref: "ProjectName"
-          - "-"
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -773,7 +745,7 @@ Resources:
           - "-"
           - "EC2-SG"
       VpcId:
-        Ref: VPC2
+        Ref: VPC65
       SecurityGroupIngress:
         - IpProtocol: icmp
           CidrIp: 10.0.0.0/8
@@ -788,40 +760,38 @@ Resources:
           ToPort: "80"
           CidrIp: 10.0.0.0/8
 
-  VPC2ServerEc2:
+  VPC65ServerEc2:
     Type: AWS::EC2::Instance
-    DependsOn: VPC2PrivateSubnetA
+    DependsOn: VPC65PrivateSubnetA
     Properties:
       SubnetId:
-        Ref: VPC2PrivateSubnetA
+        Ref: VPC65PrivateSubnetA
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
       PrivateIpAddress: !Join
         - "."
         - - !Select [
               0,
-              !Split [".", !Select [2, !Cidr [!GetAtt VPC2.CidrBlock, 6, 8]]],
+              !Split [".", !Select [2, !Cidr [!GetAtt VPC65.CidrBlock, 6, 8]]],
             ]
           - !Select [
               1,
-              !Split [".", !Select [2, !Cidr [!GetAtt VPC2.CidrBlock, 6, 8]]],
+              !Split [".", !Select [2, !Cidr [!GetAtt VPC65.CidrBlock, 6, 8]]],
             ]
           - !Select [
               2,
-              !Split [".", !Select [2, !Cidr [!GetAtt VPC2.CidrBlock, 6, 8]]],
+              !Split [".", !Select [2, !Cidr [!GetAtt VPC65.CidrBlock, 6, 8]]],
             ]
           - "10"
       InstanceType: t2.micro
       SecurityGroupIds:
-        - Ref: VPC2Ec2SecGroup
+        - Ref: VPC65Ec2SecGroup
       IamInstanceProfile:
-        Ref: VPC2InstanceProfile
+        Ref: VPC65InstanceProfile
       Tags:
         - Key: Name
           Value: !Join
             - ""
-            - - Ref: "ProjectName"
-              - "-"
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -835,15 +805,13 @@ Resources:
               - "-"
               - "WebServer"
 
-  VPC2EndpointSecGroup:
+  VPC65EndpointSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Open-up ports for local VPC
       GroupName: !Join
         - ""
-        - - Ref: "ProjectName"
-          - "-"
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -857,48 +825,48 @@ Resources:
           - "-"
           - "Endpoint-SG"
       VpcId:
-        Ref: VPC2
+        Ref: VPC65
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: "443"
           ToPort: "443"
-          CidrIp: !Select [2, !Cidr [Ref: RegionalCIDR, 4, 16]]
+          CidrIp: !Select [1, !Cidr [Ref: RegionalCIDR, 4, 16]]
 
-  VPC2SSMEndpoint:
+  VPC65SSMEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
       VpcId:
-        Ref: VPC2
+        Ref: VPC65
       ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
       VpcEndpointType: Interface
       PrivateDnsEnabled: True
       SubnetIds:
-        - Ref: VPC2PrivateSubnetA
-        - Ref: VPC2PrivateSubnetB
+        - Ref: VPC65PrivateSubnetA
+        - Ref: VPC65PrivateSubnetB
       SecurityGroupIds:
-        - Ref: VPC2EndpointSecGroup
+        - Ref: VPC65EndpointSecGroup
 
-  VPC2SSMMEndpoint:
+  VPC65SSMMEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
       VpcId:
-        Ref: VPC2
+        Ref: VPC65
       ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
       VpcEndpointType: Interface
       PrivateDnsEnabled: True
       SubnetIds:
-        - Ref: VPC2PrivateSubnetA
-        - Ref: VPC2PrivateSubnetB
+        - Ref: VPC65PrivateSubnetA
+        - Ref: VPC65PrivateSubnetB
       SecurityGroupIds:
-        - Ref: VPC2EndpointSecGroup
+        - Ref: VPC65EndpointSecGroup
 
-  # VPC2 Public Subnets
-  VPC2PublicSubnetA:
+  # VPC65 Public Subnets
+  VPC65PublicSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC2
-      CidrBlock: !Select [0, !Cidr [!GetAtt VPC2.CidrBlock, 6, 8]]
+        Ref: VPC65
+      CidrBlock: !Select [0, !Cidr [!GetAtt VPC65.CidrBlock, 6, 8]]
       AvailabilityZone:
         Ref: AvailabilityZoneA
       MapPublicIpOnLaunch: true
@@ -920,12 +888,12 @@ Resources:
               - "-"
               - "PublicA Subnet"
 
-  VPC2PublicSubnetB:
+  VPC65PublicSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC2
-      CidrBlock: !Select [1, !Cidr [!GetAtt VPC2.CidrBlock, 6, 8]]
+        Ref: VPC65
+      CidrBlock: !Select [1, !Cidr [!GetAtt VPC65.CidrBlock, 6, 8]]
       AvailabilityZone:
         Ref: AvailabilityZoneB
       MapPublicIpOnLaunch: true
@@ -947,11 +915,11 @@ Resources:
               - "-"
               - "PublicB Subnet"
 
-  VPC2PublicSubnetRouteTable:
+  VPC65PublicSubnetRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId:
-        Ref: VPC2
+        Ref: VPC65
       Tags:
         - Key: Name
           Value: !Join
@@ -970,24 +938,24 @@ Resources:
               - "-"
               - "Public Route Table"
 
-  VPC2PublicASubnetRouteTableAssociation:
+  VPC65PublicASubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPC2PublicSubnetRouteTable
+        Ref: VPC65PublicSubnetRouteTable
       SubnetId:
-        Ref: VPC2PublicSubnetA
+        Ref: VPC65PublicSubnetA
 
-  VPC2PublicBSubnetRouteTableAssociation:
+  VPC65PublicBSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId:
-        Ref: VPC2PublicSubnetRouteTable
+        Ref: VPC65PublicSubnetRouteTable
       SubnetId:
-        Ref: VPC2PublicSubnetB
+        Ref: VPC65PublicSubnetB
 
-  # VPC2 Gateways
-  VPC2InternetGateway:
+  # VPC65 Gateways
+  VPC65InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
@@ -1008,39 +976,39 @@ Resources:
               - "-"
               - "IGW"
 
-  VPC2AttachGateway:
+  VPC65AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId:
-        Ref: VPC2
+        Ref: VPC65
       InternetGatewayId:
-        Ref: VPC2InternetGateway
+        Ref: VPC65InternetGateway
 
-  VPC2DirectInternetRoute:
+  VPC65DirectInternetRoute:
     Type: AWS::EC2::Route
-    DependsOn: VPC2InternetGateway
+    DependsOn: VPC65InternetGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
-        Ref: VPC2InternetGateway
+        Ref: VPC65InternetGateway
       RouteTableId:
-        Ref: VPC2PublicSubnetRouteTable
+        Ref: VPC65PublicSubnetRouteTable
 
-  VPC2NATEIP:
+  VPC65NATEIP:
     Type: "AWS::EC2::EIP"
     Properties:
       Domain: vpc
 
-  VPC2NATGateway:
-    DependsOn: VPC2AttachGateway
+  VPC65NATGateway:
+    DependsOn: VPC65AttachGateway
     Type: "AWS::EC2::NatGateway"
     Properties:
       AllocationId:
         Fn::GetAtt:
-          - VPC2NATEIP
+          - VPC65NATEIP
           - AllocationId
       SubnetId:
-        Ref: VPC2PublicSubnetA
+        Ref: VPC65PublicSubnetA
       Tags:
         - Key: Name
           Value: !Join
@@ -1059,75 +1027,75 @@ Resources:
               - "-"
               - "NAT Gateway"
 
-  VPC2NATInternetRoutePrivate:
+  VPC65NATInternetRoutePrivate:
     Type: AWS::EC2::Route
-    DependsOn: VPC2InternetGateway
+    DependsOn: VPC65InternetGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId:
-        Ref: VPC2NATGateway
+        Ref: VPC65NATGateway
       RouteTableId:
-        Ref: VPC2PrivateSubnetRouteTable
+        Ref: VPC65PrivateSubnetRouteTable
 
 Outputs:
-  # VPC1 Outputs
-  VPC1:
-    Description: "VPC1"
-    Value: !Ref VPC1
+  # VPC64 Outputs
+  VPC64:
+    Description: "VPC64"
+    Value: !Ref VPC64
     Export:
-      Name: !Sub "VPC1-${ProjectName}-VPC"
+      Name: !Sub "VPC64-${ProjectName}-VPC"
 
-  VPC1PrivateSubnetA:
-    Description: "VPC1 Private Subnet A"
-    Value: !Ref VPC1PrivateSubnetA
+  VPC64PrivateSubnetA:
+    Description: "VPC64 Private Subnet A"
+    Value: !Ref VPC64PrivateSubnetA
     Export:
-      Name: !Sub "VPC1-${ProjectName}-PrivateSubnetA"
-  VPC1PrivateSubnetB:
-    Description: "VPC1 Private Subnet B"
-    Value: !Ref VPC1PrivateSubnetB
+      Name: !Sub "VPC64-${ProjectName}-PrivateSubnetA"
+  VPC64PrivateSubnetB:
+    Description: "VPC64 Private Subnet B"
+    Value: !Ref VPC64PrivateSubnetB
     Export:
-      Name: !Sub "VPC1-${ProjectName}-PrivateSubnetB"
+      Name: !Sub "VPC64-${ProjectName}-PrivateSubnetB"
 
-  VPC1PrivateSubnetRouteTable:
-    Description: "VPC1 Private Route Table"
-    Value: !Ref VPC1PrivateSubnetRouteTable
+  VPC64PrivateSubnetRouteTable:
+    Description: "VPC64 Private Route Table"
+    Value: !Ref VPC64PrivateSubnetRouteTable
     Export:
-      Name: !Sub "VPC1-${ProjectName}-PrivateRouteTable"
+      Name: !Sub "VPC64-${ProjectName}-PrivateRouteTable"
 
-  VPC1Server:
-    Description: "VPC1 EC2 IP address"
-    Value: !GetAtt VPC1ServerEc2.PrivateIp
+  VPC64Server:
+    Description: "VPC64 EC2 IP address"
+    Value: !GetAtt VPC64ServerEc2.PrivateIp
     Export:
-      Name: !Sub "VPC1-${ProjectName}-ServerIP"
+      Name: !Sub "VPC64-${ProjectName}-ServerIP"
 
-  # VPC2 Outputs
-  VPC2:
-    Description: "VPC2"
-    Value: !Ref VPC2
+  # VPC65 Outputs
+  VPC65:
+    Description: "VPC65"
+    Value: !Ref VPC65
     Export:
-      Name: !Sub "VPC2-${ProjectName}-VPC"
-  VPC2PrivateSubnetA:
-    Description: "VPC2 Private Subnet A"
-    Value: !Ref VPC2PrivateSubnetA
+      Name: !Sub "VPC65-${ProjectName}-VPC"
+  VPC65PrivateSubnetA:
+    Description: "VPC65 Private Subnet A"
+    Value: !Ref VPC65PrivateSubnetA
     Export:
-      Name: !Sub "VPC2-${ProjectName}-PrivateSubnetA"
-  VPC2PrivateSubnetB:
-    Description: "VPC2 Private Subnet B"
-    Value: !Ref VPC2PrivateSubnetB
+      Name: !Sub "VPC65-${ProjectName}-PrivateSubnetA"
+  VPC65PrivateSubnetB:
+    Description: "VPC65 Private Subnet B"
+    Value: !Ref VPC65PrivateSubnetB
     Export:
-      Name: !Sub "VPC2-${ProjectName}-PrivateSubnetB"
+      Name: !Sub "VPC65-${ProjectName}-PrivateSubnetB"
 
-  VPC2PrivateSubnetRouteTable:
-    Description: "VPC2 Private Route Table"
-    Value: !Ref VPC2PrivateSubnetRouteTable
+  VPC65PrivateSubnetRouteTable:
+    Description: "VPC65 Private Route Table"
+    Value: !Ref VPC65PrivateSubnetRouteTable
     Export:
-      Name: !Sub "VPC2-${ProjectName}-PrivateRouteTable"
+      Name: !Sub "VPC65-${ProjectName}-PrivateRouteTable"
 
-  VPC2Server:
-    Description: "VPC2 EC2 IP address"
-    Value: !GetAtt VPC2ServerEc2.PrivateIp
+  VPC65Server:
+    Description: "VPC65 EC2 IP address"
+    Value: !GetAtt VPC65ServerEc2.PrivateIp
     Export:
-      Name: !Sub "VPC2-${ProjectName}-ServerIP"
+      Name: !Sub "VPC65-${ProjectName}-ServerIP"
 
   RegionalCIDR:
     Description: "Regional CIDR"

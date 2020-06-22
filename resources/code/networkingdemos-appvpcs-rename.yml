@@ -102,7 +102,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -129,7 +129,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -156,7 +156,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -179,7 +179,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -214,7 +214,7 @@ Resources:
     Properties:
       RoleName: !Join
         - ""
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -256,7 +256,7 @@ Resources:
       GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
       GroupName: !Join
         - ""
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -317,7 +317,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -338,7 +338,7 @@ Resources:
       GroupDescription: Open-up ports for local VPC
       GroupName: !Join
         - ""
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -577,7 +577,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -604,7 +604,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -631,7 +631,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -654,7 +654,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -689,7 +689,7 @@ Resources:
     Properties:
       RoleName: !Join
         - ""
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -731,7 +731,7 @@ Resources:
       GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
       GroupName: !Join
         - ""
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -791,7 +791,7 @@ Resources:
         - Key: Name
           Value: !Join
             - ""
-              - VPC
+            - - VPC
               - !Select
                 - 1
                 - !Split
@@ -811,7 +811,7 @@ Resources:
       GroupDescription: Open-up ports for local VPC
       GroupName: !Join
         - ""
-          - VPC
+        - - VPC
           - !Select
             - 1
             - !Split
@@ -830,7 +830,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: "443"
           ToPort: "443"
-          CidrIp: !Select [2, !Cidr [Ref: RegionalCIDR, 4, 16]]
+          CidrIp: !Select [1, !Cidr [Ref: RegionalCIDR, 4, 16]]
 
   VPC65SSMEndpoint:
     Type: AWS::EC2::VPCEndpoint
