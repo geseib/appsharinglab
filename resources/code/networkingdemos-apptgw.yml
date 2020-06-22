@@ -47,15 +47,15 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Dev"
 
-  VPC1Attachment:
+  VPC64Attachment:
     Type: "AWS::EC2::TransitGatewayAttachment"
     Properties:
       VpcId:
-        Fn::ImportValue: !Sub "VPC1-${ProjectName}-VPC"
+        Fn::ImportValue: !Sub "VPC64-${ProjectName}-VPC"
       TransitGatewayId: !Ref TransitGateway
       SubnetIds:
-        - Fn::ImportValue: !Sub "VPC1-${ProjectName}-PrivateSubnetA"
-        - Fn::ImportValue: !Sub "VPC1-${ProjectName}-PrivateSubnetB"
+        - Fn::ImportValue: !Sub "VPC64-${ProjectName}-PrivateSubnetA"
+        - Fn::ImportValue: !Sub "VPC64-${ProjectName}-PrivateSubnetB"
       Tags:
         - Key: Name
           Value: !Join
@@ -76,15 +76,15 @@ Resources:
               - "-"
               - "Attachment"
 
-  VPC2Attachment:
+  VPC65Attachment:
     Type: "AWS::EC2::TransitGatewayAttachment"
     Properties:
       VpcId:
-        Fn::ImportValue: !Sub "VPC2-${ProjectName}-VPC"
+        Fn::ImportValue: !Sub "VPC65-${ProjectName}-VPC"
       TransitGatewayId: !Ref TransitGateway
       SubnetIds:
-        - Fn::ImportValue: !Sub "VPC2-${ProjectName}-PrivateSubnetA"
-        - Fn::ImportValue: !Sub "VPC2-${ProjectName}-PrivateSubnetB"
+        - Fn::ImportValue: !Sub "VPC65-${ProjectName}-PrivateSubnetA"
+        - Fn::ImportValue: !Sub "VPC65-${ProjectName}-PrivateSubnetB"
       Tags:
         - Key: Name
           Value: !Join
@@ -106,47 +106,47 @@ Resources:
               - "Attachment"
 
   # VPC to TGW Associations
-  VPC1Association:
+  VPC64Association:
     Type: "AWS::EC2::TransitGatewayRouteTableAssociation"
     Properties:
       TransitGatewayRouteTableId: !Ref DevRouteTable
-      TransitGatewayAttachmentId: !Ref VPC1Attachment
+      TransitGatewayAttachmentId: !Ref VPC64Attachment
 
-  VPC2Association:
+  VPC65Association:
     Type: "AWS::EC2::TransitGatewayRouteTableAssociation"
     Properties:
       TransitGatewayRouteTableId: !Ref DevRouteTable
-      TransitGatewayAttachmentId: !Ref VPC2Attachment
+      TransitGatewayAttachmentId: !Ref VPC65Attachment
 
   # VPC to TGW Dev Propagation
-  VPC1PropagationDev:
+  VPC64PropagationDev:
     Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
     Properties:
       TransitGatewayRouteTableId: !Ref DevRouteTable
-      TransitGatewayAttachmentId: !Ref VPC1Attachment
+      TransitGatewayAttachmentId: !Ref VPC64Attachment
 
-  VPC2PropagationDev:
+  VPC65PropagationDev:
     Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
     Properties:
       TransitGatewayRouteTableId: !Ref DevRouteTable
-      TransitGatewayAttachmentId: !Ref VPC2Attachment
+      TransitGatewayAttachmentId: !Ref VPC65Attachment
 
   # Add Route to TGW in VPC route tables
-  VPC1TGWRoute:
-    DependsOn: VPC1Association
+  VPC64TGWRoute:
+    DependsOn: VPC64Association
     Type: "AWS::EC2::Route"
     Properties:
       RouteTableId:
-        Fn::ImportValue: !Sub "VPC1-${ProjectName}-PrivateRouteTable"
+        Fn::ImportValue: !Sub "VPC64-${ProjectName}-PrivateRouteTable"
       DestinationCidrBlock: "0.0.0.0/0"
       TransitGatewayId: !Ref TransitGateway
 
-  VPC2TGWRoute:
-    DependsOn: VPC2Association
+  VPC65TGWRoute:
+    DependsOn: VPC65Association
     Type: "AWS::EC2::Route"
     Properties:
       RouteTableId:
-        Fn::ImportValue: !Sub "VPC2-${ProjectName}-PrivateRouteTable"
+        Fn::ImportValue: !Sub "VPC65-${ProjectName}-PrivateRouteTable"
       DestinationCidrBlock: "0.0.0.0/0"
       TransitGatewayId: !Ref TransitGateway
 
