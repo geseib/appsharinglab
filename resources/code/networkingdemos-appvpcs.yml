@@ -139,7 +139,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 1
+                    - 0
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -168,7 +168,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 1
+                    - 0
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -193,7 +193,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 1
+                    - 0
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -230,7 +230,7 @@ Resources:
             - !Split
               - "."
               - !Select
-                - 1
+                - 0
                 - !Cidr
                   - Ref: "RegionalCIDR"
                   - 8
@@ -274,7 +274,7 @@ Resources:
             - !Split
               - "."
               - !Select
-                - 1
+                - 0
                 - !Cidr
                   - Ref: "RegionalCIDR"
                   - 8
@@ -337,7 +337,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 1
+                    - 0
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -360,7 +360,7 @@ Resources:
             - !Split
               - "."
               - !Select
-                - 1
+                - 0
                 - !Cidr
                   - Ref: "RegionalCIDR"
                   - 8
@@ -373,7 +373,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: "443"
           ToPort: "443"
-          CidrIp: !Select [1, !Cidr [Ref: RegionalCIDR, 4, 16]]
+          CidrIp: !Select [0, !Cidr [Ref: RegionalCIDR, 4, 16]]
 
   VPC1SSMEndpoint:
     Type: AWS::EC2::VPCEndpoint
@@ -454,7 +454,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 2
+                    - 1
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -483,7 +483,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 2
+                    - 1
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -508,7 +508,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 2
+                    - 1
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -545,7 +545,7 @@ Resources:
             - !Split
               - "."
               - !Select
-                - 2
+                - 1
                 - !Cidr
                   - Ref: "RegionalCIDR"
                   - 8
@@ -589,7 +589,7 @@ Resources:
             - !Split
               - "."
               - !Select
-                - 2
+                - 1
                 - !Cidr
                   - Ref: "RegionalCIDR"
                   - 8
@@ -651,7 +651,7 @@ Resources:
                 - !Split
                   - "."
                   - !Select
-                    - 2
+                    - 1
                     - !Cidr
                       - Ref: "RegionalCIDR"
                       - 8
@@ -673,7 +673,7 @@ Resources:
             - !Split
               - "."
               - !Select
-                - 2
+                - 1
                 - !Cidr
                   - Ref: "RegionalCIDR"
                   - 8
