@@ -138,7 +138,7 @@ Resources:
     Properties:
       RouteTableId:
         Fn::ImportValue: !Sub "VPC64-${ProjectName}-PrivateRouteTable"
-      DestinationCidrBlock: "0.0.0.0/0"
+      DestinationCidrBlock: "10.0.0.0/8"
       TransitGatewayId: !Ref TransitGateway
 
   VPC65TGWRoute:
@@ -147,7 +147,7 @@ Resources:
     Properties:
       RouteTableId:
         Fn::ImportValue: !Sub "VPC65-${ProjectName}-PrivateRouteTable"
-      DestinationCidrBlock: "0.0.0.0/0"
+      DestinationCidrBlock: "10.0.0.0/8"
       TransitGatewayId: !Ref TransitGateway
 
 Outputs:
