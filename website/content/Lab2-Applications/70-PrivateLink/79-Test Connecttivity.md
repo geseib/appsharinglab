@@ -8,7 +8,7 @@ weight = 79
 
 Now if we have complete all the steps we should be able to test connectivity across the TGW. We will be testing from the first EC2 instance that you created in VPC 10.64.0.0/16. It has an address of **10.64.2.10**. We will be pinging across the Transit Gateway to **10.65.2.10**
 
-   ![Test Diagram](/images/pl-diagram.png)
+![Test Diagram](/images/pl-diagram.png)
 
 ### Step-by-step
 
@@ -43,12 +43,12 @@ Now if we have complete all the steps we should be able to test connectivity acr
 
    **_Note: the remote IP is not the IP of the host you are currently on! Instead it is being NAT'ed to the address of the Network Load Balancer in the other VPC. You can contrast this by using curl to the Network Load Balancer over the Transit Gateway (see steps in the Deploy NLB section)_**
 
-1. To verify the IP addresses of the Network Load Balancers you can **dig** the DNS name of the Network Load Balancer** like this:
+1. To verify the IP addresses of the VPC Endpoint you can **dig** the DNS name of the VPC Endpoint\*\* like this:
 
 ```
-sh-4.2$ dig VPC65-NLB-Internal-b5d244bcb071a9be.elb.us-east-1.amazonaws.com
+sh-4.2$ dig vpce-0cb2550d26a0f4c51-9c6sgub0.vpce-svc-0a37df83d8cf5776c.us-east-1.vpce.amazonaws.com
 
-; <<>> DiG 9.11.4-P2-RedHat-9.11.4-9.P2.amzn2.0.2 <<>> VPC65-NLB-Internal-b5d244bcb071a9be.elb.us-east-1.amazonaws.com
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-9.P2.amzn2.0.2 <<>> vpce-0cb2550d26a0f4c51-9c6sgub0.vpce-svc-0a37df83d8cf5776c.us-east-1.vpce.amazonaws.com
 ;; global options: +cmd
 ;; Got answer:
 ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 25511
@@ -57,11 +57,11 @@ sh-4.2$ dig VPC65-NLB-Internal-b5d244bcb071a9be.elb.us-east-1.amazonaws.com
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 4096
 ;; QUESTION SECTION:
-;VPC65-NLB-Internal-b5d244bcb071a9be.elb.us-east-1.amazonaws.com. IN A
+;vpce-0cb2550d26a0f4c51-9c6sgub0.vpce-svc-0a37df83d8cf5776c.us-east-1.vpce.amazonaws.com. IN A
 
 ;; ANSWER SECTION:
-VPC65-NLB-Internal-b5d244bcb071a9be.elb.us-east-1.amazonaws.com. 60 IN A 10.65.2.5
-VPC65-NLB-Internal-b5d244bcb071a9be.elb.us-east-1.amazonaws.com. 60 IN A 10.65.3.210
+vpce-0cb2550d26a0f4c51-9c6sgub0.vpce-svc-0a37df83d8cf5776c.us-east-1.vpce.amazonaws.com. 60 IN A 10.64.2.5
+vpce-0cb2550d26a0f4c51-9c6sgub0.vpce-svc-0a37df83d8cf5776c.us-east-1.vpce.amazonaws.com. 60 IN A 10.64.3.210
 
 ;; Query time: 3 msec
 ;; SERVER: 10.64.0.2#53(10.64.0.2)
@@ -69,11 +69,8 @@ VPC65-NLB-Internal-b5d244bcb071a9be.elb.us-east-1.amazonaws.com. 60 IN A 10.65.3
 ;; MSG SIZE  rcvd: 124
 ```
 
-
-
 ### Troubleshooting
 
-If you are unable to ping across, go back and check the route tables. The most common issue is that the private route tables in the VPCs do not have the route to **10.0.0.0/8** pointing to the TGW. 
-
+If you are unable to ping across, go back and check the route tables. The most common issue is that the private route tables in the VPCs do not have the route to **10.0.0.0/8** pointing to the TGW.
 
 ## You have completed the Lab.
