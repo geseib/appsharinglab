@@ -26,6 +26,7 @@ weight = 62
 
    - Change the health check to **HTTP** from the dropdown
    - Leave the **Health check path** set to **/**
+   - Under **Advanced health check settings** set **Success codes** to **200-399**
    - click the **Next** button.
 
    ![register targets](/images/nlb-tg-register.png)
